@@ -6,26 +6,18 @@
 #include "inc/hw_types.h"
 int num = 0;
 uint8_t  startBit_ble = 0;
-uint8_t startBit_Ble = 0;
 uint16_t intpurBleString[80] = {0};
 uint16_t BleBit = 0;
 
-
-extern uint8_t mode;
-extern void mode_change(uint8_t modee);
-extern void mode7_change(float mode7_centerr);
-extern void mode2_change(uint8_t mode_2_counttt);
-extern float angel_up ;
-extern float angel_down ;
 
 
 void BleIntHandler(void)
 {
 		uint32_t flag = UARTIntStatus(BLE_UART_BASE,1);
-		//Çå³ıÖĞ¶Ï±êÖ¾
+		//æ¸…é™¤ä¸­æ–­æ ‡å¿—
 		UARTIntClear(BLE_UART_BASE,flag);
 	
-		BleBit =UARTCharGet(BLE_UART_BASE);	//¶ÁÈ¡½ÓÊÕµ½µÄÊı¾İ
+		BleBit =UARTCharGet(BLE_UART_BASE);	//è¯»å–æ¥æ”¶åˆ°çš„æ•°æ®
 //		UARTCharPut(UART0_BASE,BleBit);	
 		if(BleBit == '$')
 	    {
@@ -38,7 +30,7 @@ void BleIntHandler(void)
 	    }  
 	    if (startBit_ble == 1 && BleBit == '#') 
 	    {		
-				startBit_Ble = 1; 
+			
 				startBit_ble = 0;
 	    }
 			num++;
@@ -46,36 +38,36 @@ void BleIntHandler(void)
 				{
 					num = 0;
 					startBit_ble = 0;
-					startBit_Ble	= 0;
+				
 				}	 	
 }
 
 
 void BLE_Init(void)
 {
-	//Ê¹ÄÜUARTÍâÉè
+	//ä½¿èƒ½UARTå¤–è®¾
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_BLE);
-	//Ê¹ÄÜGPIOÍâÉè
+	//ä½¿èƒ½GPIOå¤–è®¾
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_BLE_GPIO);
-//	//GPIO¸´ÓÃÄ£Ê½ÅäÖÃ
+//	//GPIOå¤ç”¨æ¨¡å¼é…ç½®
 	HWREG(GPIO_PORTD_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY;
 	HWREG(GPIO_PORTD_BASE + GPIO_O_CR) = 0xFF;
 	
 	GPIOPinConfigure(BLE_GPIO_RX);
 	GPIOPinConfigure(BLE_GPIO_TX);
 	GPIOPinTypeUART(BLE_GPIO_BASE, BLE_GPIO_PIN_RX |BLE_GPIO_PIN_TX);
-	//uartÅäÖÃ ²¨ÌØÂÊ£º115200 8Î» 1Î»Í£Ö¹Î» ÎŞĞ£Ñé
+	//uarté…ç½® æ³¢ç‰¹ç‡ï¼š115200 8ä½ 1ä½åœæ­¢ä½ æ— æ ¡éªŒ
 	UARTConfigSetExpClk(BLE_UART_BASE, SysCtlClockGet(),
                     BLE_BAUD, (UART_CONFIG_WLEN_8 |UART_CONFIG_STOP_ONE |UART_CONFIG_PAR_NONE));
 	
-	//UART½ûÓÃFIFO Ä¬ÈÏFIFO LevelÎª4/8 ¼Ä´æÆ÷Âú8×Ö½Úºó²úÉúÖĞ¶Ï
-	//½ûÓÃºó½ÓÊÕ1Î»¾Í²úÉúÖĞ¶Ï
+	//UARTç¦ç”¨FIFO é»˜è®¤FIFO Levelä¸º4/8 å¯„å­˜å™¨æ»¡8å­—èŠ‚åäº§ç”Ÿä¸­æ–­
+	//ç¦ç”¨åæ¥æ”¶1ä½å°±äº§ç”Ÿä¸­æ–­
 	UARTFIFODisable(BLE_GPIO_BASE);
-	//Ê¹ÄÜUART0ÖĞ¶Ï
+	//ä½¿èƒ½UART0ä¸­æ–­
 	IntEnable(BLE_INT_UART);
-	//Ê¹ÄÜUART0½ÓÊÕÖĞ¶Ï
+	//ä½¿èƒ½UART0æ¥æ”¶ä¸­æ–­
 	UARTIntEnable(BLE_UART_BASE,UART_INT_RX |UART_INT_RT);
-	//UARTÖĞ¶ÏµØÖ·×¢²á
+	//UARTä¸­æ–­åœ°å€æ³¨å†Œ
 	UARTIntRegister(BLE_UART_BASE,BleIntHandler);
 	
 	IntPrioritySet(BLE_INT_UART, 3);
